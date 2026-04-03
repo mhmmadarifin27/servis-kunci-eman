@@ -92,10 +92,32 @@ export default function Home() {
   const nextGallery = () => setActiveGal((prev) => (prev + 1) % galleryItems.length);
   const prevGallery = () => setActiveGal((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
 
+  // Auto-scroll untuk galeri
   useEffect(() => {
     const interval = setInterval(nextGallery, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  // --- TAMBAHAN: Auto-scroll untuk ulasan (berjalan otomatis tiap 3.5 detik) ---
+  useEffect(() => {
+    const reviewInterval = setInterval(() => {
+      if (reviewsRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = reviewsRef.current;
+        // Jika sudah mentok di ujung kanan, kembali ke awal
+        if (Math.ceil(scrollLeft + clientWidth) >= scrollWidth) {
+          reviewsRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          // Geser ke kanan sebesar lebar 1 card (sekitar 340px)
+          reviewsRef.current.scrollBy({ left: 340, behavior: 'smooth' });
+        }
+      }
+    }, 3500);
+
+    return () => clearInterval(reviewInterval);
+  }, []);
+  // -----------------------------------------------------------------------------
+
+
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans overflow-x-hidden selection:bg-[#0a5c7a] selection:text-white">
@@ -233,7 +255,7 @@ export default function Home() {
           {/* Tombol Panah Kiri (Mobile Only - Di samping frame) */}
           <button 
             onClick={() => scrollServices('left')} 
-            className="md:hidden absolute -left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-[#1e293b] text-emerald-400 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:bg-slate-800 hover:scale-110 transition-all"
+            className="md:hidden absolute -left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white text-slate-400 shadow-x1 hover:bg-[#0a5c7a] hover:text-white transition-all"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -241,7 +263,7 @@ export default function Home() {
           {/* Tombol Panah Kanan (Mobile Only - Di samping frame) */}
           <button 
             onClick={() => scrollServices('right')} 
-            className="md:hidden absolute -right-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-[#1e293b] text-emerald-400 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:bg-slate-800 hover:scale-110 transition-all"
+            className="md:hidden absolute -right-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white text-slate-400 shadow-x1 hover:bg-[#0a5c7a] hover:text-white transition-all"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -406,27 +428,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. TESTIMONIALS SECTION - Split Layout & Scrollable Reviews + WA Grids */}
+      {/* 4. TESTIMONIALS SECTION - Split Layout & Auto-Scrollable Reviews + WA Grids */}
       <section id="ulasan" className="py-24 px-6 md:px-16 max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20">
         
         {/* Kiri: Teks Judul (Tetap di Samping) */}
         <motion.div className="lg:w-1/3 relative shrink-0" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
-          <div className="sticky top-32">
-            <div className="absolute w-32 h-32 bg-[#e2edf2] rounded-full blur-3xl -left-10 -top-10 -z-10"></div>
-            <h2 className="text-5xl md:text-6xl font-light text-slate-800 leading-tight mb-6">
-              Dipercaya oleh <br />
-              <span className="font-bold text-slate-900">Masyarakat</span> <br />
-              Palembang.
-            </h2>
-            <p className="text-slate-500">Bukti nyata dari dedikasi kami memberikan layanan kunci terbaik siang dan malam.</p>
-            
-            <div className="flex gap-4 mt-8">
-              <button onClick={() => scrollReviews('left')} className="p-3 rounded-full border border-slate-200 bg-white hover:bg-[#0a5c7a] hover:text-white transition-colors shadow-sm text-slate-600">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button onClick={() => scrollReviews('right')} className="p-3 rounded-full border border-slate-200 bg-white hover:bg-[#0a5c7a] hover:text-white transition-colors shadow-sm text-slate-600">
-                <ChevronRight className="w-5 h-5" />
-              </button>
+          <div className="sticky top-32 flex flex-col justify-between h-full min-h-[300px]">
+            <div>
+              <div className="absolute w-32 h-32 bg-[#e2edf2] rounded-full blur-3xl -left-10 -top-10 -z-10"></div>
+              <h2 className="text-5xl md:text-6xl font-light text-slate-800 leading-tight mb-6">
+                Dipercaya oleh <br />
+                <span className="font-bold text-slate-900">Masyarakat</span> <br />
+                Palembang.
+              </h2>
+              <p className="text-slate-500 mb-6">Bukti nyata dari dedikasi kami memberikan layanan kunci terbaik siang dan malam.</p>
+              
+              {/* Tambahan Teks agar seimbang ke bawah */}
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#0a5c7a] mt-2"></div>
+                  <p className="text-sm text-slate-600 font-light leading-relaxed">Lebih dari sekadar pelanggan, mereka adalah mitra yang mempercayakan keamanan aset berharganya kepada keahlian kami.</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#0a5c7a] mt-2"></div>
+                  <p className="text-sm text-slate-600 font-light leading-relaxed">Setiap ulasan adalah cerminan dari komitmen kami terhadap presisi, kecepatan, dan kepuasan tanpa kompromi.</p>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -434,70 +461,98 @@ export default function Home() {
         {/* Kanan: Content Review */}
         <div className="lg:w-2/3 w-full flex flex-col gap-10">
           
-          {/* Scrollable Text Reviews - Kotak Diperkecil agar Teks Turun */}
-          <div 
-            ref={reviewsRef}
-            className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory hide-scrollbar items-stretch"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {/* Card 1 */}
-            <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between">
-              <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
-                "Kunci Eman tidak sekadar menduplikat; pelayanan panggilan 24 jamnya sangat membantu. Kerjaannya diam, cepat, dan tingkat presisinya luar biasa."
-              </p>
-              <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full shrink-0"></div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Warga Bukit Kecil</h4>
-                  <p className="text-[10px] text-slate-400 mt-1">Review Langsung</p>
+          {/* Wrapper Relative untuk Kotak Teks */}
+          <div className="relative w-full">
+            
+            {/* Scrollable Text Reviews (Sekarang Auto-Scroll, tanpa tombol) */}
+            <div 
+              ref={reviewsRef}
+              className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory hide-scrollbar items-stretch px-2 md:px-0"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {/* Card 1 */}
+              <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between cursor-default">
+                <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
+                  "Kunci Eman tidak sekadar menduplikat; pelayanan panggilan 24 jamnya sangat membantu. Kerjaannya diam, cepat, dan tingkat presisinya luar biasa."
+                </p>
+                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full shrink-0"></div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Warga Bukit Kecil</h4>
+                    <p className="text-[10px] text-slate-400 mt-1">Review Langsung</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Card 2 */}
-            <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between">
-              <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
-                "Pengerjaan chip immobilizer mobil saya beres tanpa harus repot bawa ke dealer resmi. Harga bersahabat hasil maksimal!"
-              </p>
-              <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-green-100 to-green-200 rounded-full shrink-0"></div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Klien Home Servis</h4>
-                  <p className="text-[10px] text-slate-400 mt-1">Review WhatsApp</p>
+              {/* Card 2 */}
+              <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between cursor-default">
+                <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
+                  "Pengerjaan chip immobilizer mobil saya beres tanpa harus repot bawa ke dealer resmi. Harga bersahabat hasil maksimal!"
+                </p>
+                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-100 to-green-200 rounded-full shrink-0"></div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Klien Home Servis</h4>
+                    <p className="text-[10px] text-slate-400 mt-1">Review WhatsApp</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Card 3 */}
-            <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between">
-              <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
-                "Malam-malam kunci motor patah di dalam, untung Kunci Eman fast respon datang ke lokasi. Pengerjaan sangat rapi."
-              </p>
-              <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full shrink-0"></div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Mahasiswa UIN</h4>
-                  <p className="text-[10px] text-slate-400 mt-1">Panggilan Malam</p>
+              {/* Card 3 */}
+              <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between cursor-default">
+                <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
+                  "Malam-malam kunci motor patah di dalam, untung Kunci Eman fast respon datang ke lokasi. Pengerjaan sangat rapi."
+                </p>
+                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                  <div className="w-10 h-10 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full shrink-0"></div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Mahasiswa UIN</h4>
+                    <p className="text-[10px] text-slate-400 mt-1">Panggilan Malam</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Card 4 */}
+              <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between cursor-default">
+                <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
+                  "Duplikat kunci rumah sangat presisi, langsung pas tanpa macet. Layanannya juga ramah banget. Sangat direkomendasikan!"
+                </p>
+                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-100 to-purple-200 rounded-full shrink-0"></div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Bapak RT Setempat</h4>
+                    <p className="text-[10px] text-slate-400 mt-1">Pelanggan Toko</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Frame Kotak untuk Screenshot Review WA - Dibungkus agar lebih rapi di laptop */}
+          {/* Frame Kotak untuk Screenshot Review WA */}
           <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mt-2">
             <h4 className="text-sm font-semibold text-slate-600 mb-5 border-b border-slate-200 pb-3 flex items-center justify-between">
               <span>Galeri Bukti Percakapan Pelanggan</span>
-              <span className="text-[10px] bg-white px-2 py-1 rounded text-slate-400 border border-slate-200 hidden sm:block">Gambar Ilustrasi WA</span>
             </h4>
+            
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="aspect-[9/16] bg-white rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center relative group cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1">
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/5 group-hover:opacity-0 transition-opacity"></div>
-                  <span className="text-xs text-slate-300 font-medium">SS WA {item}</span>
-                  {/* <img src={`ss-wa-${item}.jpg`} className="w-full h-full object-cover" /> */}
+              {/* UBAH NAMA FILE DI BAWAH INI SESUAI DENGAN FOTO ANDA DI FOLDER PUBLIC */}
+              {["wa1.jpeg", "wa2.jpeg", "wa3.jpeg", "wa4.jpeg"].map((gambar, index) => (
+                <div key={index} className="aspect-[9/16] bg-white rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center relative group cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1">
+                  
+                  {/* Efek gelap tipis saat di-hover */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/10 group-hover:opacity-0 transition-opacity z-10"></div>
+                  
+                  {/* Ini adalah gambar aslinya */}
+                  <img 
+                    src={gambar} 
+                    alt={`Review WA ${index + 1}`} 
+                    className="w-full h-full object-cover relative z-0" 
+                  />
+                  
                 </div>
               ))}
             </div>
+            
           </div>
 
         </div>
