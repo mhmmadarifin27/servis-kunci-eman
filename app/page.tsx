@@ -1,65 +1,608 @@
-import Image from "next/image";
+"use client";
+
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { Lock, Shield, ArrowRight, Phone, MapPin, Key, Car, ChevronLeft, ChevronRight, Home as HomeIcon } from "lucide-react";
+import { useState, useRef, useEffect, ReactNode } from "react";
+
+// --- KOMPONEN COUNTER (ANGKA BERJALAN) ---
+function Counter({ value, duration = 2 }: { value: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const nodeRef = useRef(null);
+  const isInView = useInView(nodeRef, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const end = value;
+      const totalMiliseconds = duration * 1000;
+      const incrementTime = totalMiliseconds / end;
+
+      const timer = setInterval(() => {
+        start += Math.ceil(end / 100); // Naik per 1% agar halus
+        if (start >= end) {
+          setCount(end);
+          clearInterval(timer);
+        } else {
+          setCount(start);
+        }
+      }, incrementTime * (end / 100));
+
+      return () => clearInterval(timer);
+    }
+  }, [isInView, value, duration]);
+
+  return <span ref={nodeRef}>{count.toLocaleString()}</span>;
+}
 
 export default function Home() {
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
+  };
+
+  // --- STATE & REF UNTUK FITUR SCROLL ---
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const scrollServices = (direction: 'left' | 'right') => {
+    if (servicesRef.current) {
+      const scrollAmount = direction === 'left' ? -350 : 350;
+      servicesRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const reviewsRef = useRef<HTMLDivElement>(null);
+  const scrollReviews = (direction: 'left' | 'right') => {
+    if (reviewsRef.current) {
+      const scrollAmount = direction === 'left' ? -350 : 350;
+      reviewsRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  // Galeri Melengkung
+  // State & Logika untuk Galeri Melengkung (Curved Carousel)
+  const galleryItems = [
+    { 
+      id: 1, 
+      title: 'Duplikat Sepeda Listrik', 
+      // Ganti src dengan nama foto Anda di folder public
+      img: <img src="gallery1.jpeg" alt="Duplikat Motor" className="w-full h-full object-cover" /> 
+    },
+    { 
+      id: 2, 
+      title: 'Sentuhan Ahli', 
+      img: <img src="gallery2.jpeg" alt="Immobilizer" className="w-full h-full object-cover" /> 
+    },
+    { 
+      id: 3, 
+      title: 'Logika Tanpa Beban', 
+      img: <img src="gallery3.jpeg" alt="Smartkey" className="w-full h-full object-cover" /> 
+    },
+    { 
+      id: 4, 
+      title: 'Presisi Brankas', 
+      img: <img src="hero1.jpeg" alt="Brankas" className="w-full h-full object-cover" /> 
+    },
+    { 
+      id: 5, 
+      title: 'Duplikat Pintu Rumah', 
+      img: <img src="gallery4.jpeg" alt="Kunci Rumah" className="w-full h-full object-cover" /> 
+    },
+  ];
+  const [activeGal, setActiveGal] = useState(2);
+
+  const nextGallery = () => setActiveGal((prev) => (prev + 1) % galleryItems.length);
+  const prevGallery = () => setActiveGal((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
+
+  useEffect(() => {
+    const interval = setInterval(nextGallery, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-white text-slate-800 font-sans overflow-x-hidden selection:bg-[#0a5c7a] selection:text-white">
+      
+      {/* NAVBAR */}
+      <nav className="w-full bg-white/90 backdrop-blur-sm flex justify-between items-center px-6 md:px-16 py-6 fixed top-0 z-50 border-b border-slate-100">
+        
+        {/* LOGO - Menggantikan Teks 'Kunci Eman' */}
+        <div className="flex items-center">
+          <img 
+            src="logo.png" // Ganti dengan nama file logo PNG Anda. Taruh di folder 'public'.
+            alt="Logo Kunci Eman" 
+            className="h-15 w-auto" // Sesuaikan ukuran tinggi (h-10) logo. Lebar otomatis (w-auto).
+          />
+        </div>
+        {/* ------------------------------------------- */}
+        <div className="hidden md:flex gap-8 text-sm font-medium text-slate-500">
+          <a href="#layanan" className="hover:text-[#0a5c7a] transition-colors">Layanan</a>
+          <a href="#galeri" className="hover:text-[#0a5c7a] transition-colors">Galeri</a>
+          <a href="#ulasan" className="hover:text-[#0a5c7a] transition-colors">Testimoni</a>
+          <a href="#kontak" className="hover:text-[#0a5c7a] transition-colors">Kontak</a>
+        </div>
+        <a href="https://wa.me/628978744356" target="_blank" rel="noreferrer" className="bg-[#0a5c7a] text-white px-6 py-2.5 rounded text-sm font-semibold hover:bg-[#07465e] transition-colors shadow-lg">
+          Panggilan 24 Jam
+        </a>
+      </nav>
+
+      {/* 1. HERO SECTION */}
+      <section className="relative pt-40 pb-20 min-h-screen flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0 bg-[linear-gradient(135deg,#ffffff_50%,#e2edf2_50%)]" />
+        <div className="px-6 md:px-16 max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center w-full relative z-10">
+          <motion.div className="w-full md:w-1/2 z-10" initial="hidden" animate="visible" variants={fadeInUp}>
+            <h1 className="text-6xl md:text-8xl font-light text-slate-800 leading-[1.1] tracking-tight mb-2">Solusi</h1>
+            <h1 className="text-6xl md:text-8xl font-bold italic text-[#0a5c7a] leading-[1.1] tracking-tight mb-2">Presisi</h1>
+            <h1 className="text-6xl md:text-8xl font-light text-slate-800 leading-[1.1] tracking-tight mb-6 bg-white/50 backdrop-blur-sm inline-block rounded-lg pr-4">Kunci Eman</h1>
+            <p className="text-slate-600 text-sm md:text-base max-w-md mb-10 leading-relaxed font-medium bg-white/60 p-4 rounded-xl backdrop-blur-sm border border-white">
+              Mendefinisikan ulang akurasi duplikat kunci. Kami tidak hanya membuka ruang yang terkunci; kami mengembalikan ketenangan Anda.
+            </p>
+            <div className="flex items-center gap-4">
+              <a href="https://wa.me/628978744356" target="_blank" rel="noreferrer" className="bg-[#0a5c7a] text-white px-8 py-3.5 rounded text-sm font-semibold hover:bg-[#07465e] transition-all shadow-xl shadow-[#0a5c7a]/20">Amankan Aset Saya</a>
+              <a href="#layanan" className="bg-white text-slate-700 border-2 border-white px-8 py-3.5 rounded text-sm font-semibold shadow-lg">Mulai dari 20k</a>
+            </div>
+          </motion.div>
+          {/* Bagian Kanan: Hero Image dengan Efek Frame Miring di Belakang */}
+          <motion.div 
+            className="w-full md:w-1/2 mt-20 md:mt-0 relative h-[500px] flex justify-center items-center"
+            initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.2 }}
+          >
+            {/* Elemen Dekoratif: Frame Miring di Belakang (Agak Serong) */}
+            <div className="absolute w-[350px] h-[400px] md:w-[450px] md:h-[500px] bg-white shadow-xl rotate-[10deg] rounded-sm border border-slate-100 z-0"></div>
+
+            {/* Kontainer Utama Foto (Lurus, Tidak Serong) */}
+            <div className="w-[350px] h-[400px] md:w-[450px] md:h-[500px] bg-white shadow-2xl rounded-sm overflow-hidden relative border-[12px] border-white group z-10 transition-transform duration-300 hover:-translate-y-2">
+               {/* Gambar bersih tanpa lapisan gelap */}
+               <img 
+                 src="hero1.jpeg" // Pastikan file hero1.jpeg ada di folder public
+                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                 alt="Keahlian Kunci Eman" 
+               />
+               
+               {/* Hover Effect Opsional: Menampilkan ikon kunci tipis saat kursor di atas foto */}
+               <div className="absolute inset-0 bg-[#0a5c7a]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  
+               </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* IMPACT STATS SECTION - DENGAN ANGKA BERJALAN */}
+      <section className="py-20 bg-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 md:px-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            
+            {/* Stat 1 */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+              <span className="bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded mb-4 inline-block">
+                Keahlian
+              </span>
+              <h2 className="text-5xl md:text-6xl font-bold text-[#0a5c7a] mb-4">
+                <Counter value={5000} />+
+              </h2>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-[200px] mx-auto">
+                Kunci sukses terduplikat & diservis sejak kami berdiri.
+              </p>
+            </motion.div>
+
+            {/* Stat 2 */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.2 }}>
+              <span className="bg-blue-100 text-[#0a5c7a] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded mb-4 inline-block">
+                Respons
+              </span>
+              <h2 className="text-5xl md:text-6xl font-bold text-[#0a5c7a] mb-4">
+                <Counter value={24} /> Jam
+              </h2>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-[200px] mx-auto">
+                Siap siaga melayani panggilan darurat di seluruh Palembang.
+              </p>
+            </motion.div>
+
+            {/* Stat 3 */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.4 }}>
+              <span className="bg-yellow-100 text-yellow-700 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded mb-4 inline-block">
+                Presisi
+              </span>
+              <h2 className="text-5xl md:text-6xl font-bold text-[#0a5c7a] mb-4">
+                <Counter value={100} />%
+              </h2>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-[200px] mx-auto">
+                Jaminan keakuratan dan kepuasan pelanggan kami.
+              </p>
+            </motion.div>
+
+          </div>
+        </div>
+      </section>
+
+    {/* 2. SERVICES SECTION - Grid Layout Desktop & Scroll Mobile + Hover Effects */}
+      <section id="layanan" className="py-24 px-6 md:px-16 max-w-screen-2xl mx-auto">
+        <div className="mb-12 relative">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+            <h2 className="text-4xl md:text-5xl font-light text-slate-800 tracking-tight">
+              Keahlian dalam <span className="font-semibold text-[#0a5c7a]">Kepresisian</span>.
+            </h2>
+            <p className="text-slate-500 mt-3 text-sm max-w-lg font-light">
+              <span className="md:hidden">Geser untuk melihat layanan kami. </span>
+              Melayani segala macam kunci dengan teknologi modern dan pengerjaan halus.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Wrapper Relative untuk posisi panah samping di Mobile */}
+        <div className="relative w-full">
+          
+          {/* Tombol Panah Kiri (Mobile Only - Di samping frame) */}
+          <button 
+            onClick={() => scrollServices('left')} 
+            className="md:hidden absolute -left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-[#1e293b] text-emerald-400 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:bg-slate-800 hover:scale-110 transition-all"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          {/* Tombol Panah Kanan (Mobile Only - Di samping frame) */}
+          <button 
+            onClick={() => scrollServices('right')} 
+            className="md:hidden absolute -right-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-[#1e293b] text-emerald-400 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:bg-slate-800 hover:scale-110 transition-all"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Container: Scroll Horizontal (Mobile) & Grid 4 Kolom (Desktop) */}
+          <div 
+            ref={servicesRef}
+            className="flex overflow-x-auto md:overflow-x-visible md:grid md:grid-cols-2 xl:grid-cols-4 gap-6 pb-6 snap-x snap-mandatory hide-scrollbar"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {/* Card 1: Rumah & Brankas */}
+            <motion.div className="group w-[85vw] md:w-auto shrink-0 snap-center bg-white hover:bg-[#0a5c7a] p-8 lg:p-10 rounded-2xl shadow-xl shadow-slate-200/50 hover:shadow-2xl border border-slate-100 hover:border-[#0d6e91] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-2">
+              <div>
+                <div className="w-12 h-12 bg-[#f4f8fa] group-hover:bg-white/10 flex items-center justify-center rounded-xl mb-6 text-[#0a5c7a] group-hover:text-white transition-colors duration-300">
+                  <HomeIcon className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 group-hover:text-white mb-3 transition-colors duration-300">Rumah & Brankas</h3>
+                <p className="text-sm text-slate-500 group-hover:text-blue-100 mb-8 font-light leading-relaxed transition-colors duration-300">
+                  Solusi duplikat dan servis untuk segala jenis pintu rumah, gembok, hingga penanganan brankas macet. Dikerjakan halus tanpa merusak aset.
+                </p>
+              </div>
+              <a href="#galeri" className="text-xs font-bold text-[#0a5c7a] group-hover:text-white flex items-center gap-2 uppercase tracking-wide transition-colors duration-300">
+                Lihat Detail <ArrowRight className="w-4 h-4" />
+              </a>
+            </motion.div>
+
+            {/* Card 2: Immobilizer */}
+            <motion.div className="group w-[85vw] md:w-auto shrink-0 snap-center bg-white hover:bg-[#0a5c7a] p-8 lg:p-10 rounded-2xl shadow-xl shadow-slate-200/50 hover:shadow-2xl border border-slate-100 hover:border-[#0d6e91] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-2">
+              <div>
+                <div className="w-12 h-12 bg-[#f4f8fa] group-hover:bg-white/10 flex items-center justify-center rounded-xl mb-6 text-[#0a5c7a] group-hover:text-white transition-colors duration-300">
+                  <Shield className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 group-hover:text-white mb-3 transition-colors duration-300">Immobilizer & Smartkey</h3>
+                <p className="text-sm text-slate-500 group-hover:text-blue-100 mb-8 font-light leading-relaxed transition-colors duration-300">
+                  Spesialisasi pemrograman chip immobilizer dan duplikat smartkey teknologi terkini. Akses kendaraan kembali normal tanpa repot ke dealer.
+                </p>
+              </div>
+              <a href="https://wa.me/628978744356" target="_blank" rel="noreferrer" className="text-xs font-bold text-[#0a5c7a] group-hover:text-white flex items-center gap-2 uppercase tracking-wide transition-colors duration-300">
+                Konsultasi Langsung <ArrowRight className="w-4 h-4" />
+              </a>
+            </motion.div>
+
+            {/* Card 3: Kendaraan Bermotor */}
+            <motion.div className="group w-[85vw] md:w-auto shrink-0 snap-center bg-white hover:bg-[#0a5c7a] p-8 lg:p-10 rounded-2xl shadow-xl shadow-slate-200/50 hover:shadow-2xl border border-slate-100 hover:border-[#0d6e91] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-2">
+              <div>
+                <div className="w-12 h-12 bg-[#f4f8fa] group-hover:bg-white/10 flex items-center justify-center rounded-xl mb-6 text-[#0a5c7a] group-hover:text-white transition-colors duration-300">
+                  <Car className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 group-hover:text-white mb-3 transition-colors duration-300">Mobil, Motor & E-Bike</h3>
+                <p className="text-sm text-slate-500 group-hover:text-blue-100 mb-8 font-light leading-relaxed transition-colors duration-300">
+                  Pemotongan tingkat presisi tinggi untuk kendaraan operasional Anda, dari kunci mobil, motor harian, hingga kunci sepeda listrik.
+                </p>
+              </div>
+              <a href="#galeri" className="text-xs font-bold text-[#0a5c7a] group-hover:text-white flex items-center gap-2 uppercase tracking-wide transition-colors duration-300">
+                Lihat Presisi <ArrowRight className="w-4 h-4" />
+              </a>
+            </motion.div>
+
+            {/* Card 4: Operasional */}
+            <motion.div className="group w-[85vw] md:w-auto shrink-0 snap-center bg-white hover:bg-[#0a5c7a] p-8 lg:p-10 rounded-2xl shadow-xl shadow-slate-200/50 hover:shadow-2xl border border-slate-100 hover:border-[#0d6e91] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-2">
+              <div>
+                <div className="w-12 h-12 bg-[#f4f8fa] group-hover:bg-white/10 flex items-center justify-center rounded-xl mb-6 text-[#0a5c7a] group-hover:text-white transition-colors duration-300">
+                  <Phone className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 group-hover:text-white mb-3 transition-colors duration-300">Toko & Home Servis</h3>
+                <p className="text-sm text-slate-500 group-hover:text-blue-100 mb-8 font-light leading-relaxed transition-colors duration-300">
+                  Kunjungi toko kami atau gunakan layanan panggilan. Tim siap meluncur langsung ke lokasi Anda 24 jam penuh untuk area Palembang dan sekitarnya.
+                </p>
+              </div>
+              <a href="#kontak" className="text-xs font-bold text-[#0a5c7a] group-hover:text-white flex items-center gap-2 uppercase tracking-wide transition-colors duration-300">
+                Hubungi Kami <ArrowRight className="w-4 h-4" />
+              </a>
+            </motion.div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 3. GALLERY SECTION - Curved Carousel Diperbarui */}
+      <section id="galeri" className="py-32 px-6 overflow-hidden relative bg-slate-50 border-y border-slate-100">
+        
+        {/* Background Decor (Bercak cahaya biru halus agar tidak polos) */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-gradient-to-b from-[#e2edf2]/60 to-transparent blur-3xl -z-10"></div>
+
+        <div className="text-center mb-16 md:mb-24 relative z-10">
+          <h2 className="text-4xl md:text-5xl font-light text-slate-800 tracking-tight">
+            Dokumentasi <span className="font-semibold text-[#0a5c7a]">Kerja</span>
+          </h2>
+          <p className="text-[10px] md:text-xs font-bold tracking-widest uppercase text-slate-400 mt-4">
+            PRESISI TINGGI DI SETIAP KUNCI
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Container Curved Carousel - Tinggi disesuaikan agar pas di Desktop */}
+        <div className="relative h-[450px] md:h-[650px] max-w-[1400px] mx-auto flex justify-center items-center">
+          
+          <AnimatePresence mode="popLayout">
+            {galleryItems.map((item, index) => {
+              let offset = index - activeGal;
+              if (offset < -2) offset += galleryItems.length;
+              if (offset > 2) offset -= galleryItems.length;
+
+              // Menggunakan string persentase agar responsif mengikuti ukuran layar (HP vs Laptop)
+              let xPos: string | number = 0;
+              let yPos = 0;
+              let rotation = 0;
+              let scale = 1;
+              let opacity = 1;
+              let zIndex = 10;
+
+              if (offset === 0) {
+                // Item Tengah (Puncak Kurva)
+                xPos = 0; yPos = -20; rotation = 0; scale = 1.1; zIndex = 30; opacity = 1;
+              } else if (offset === -1 || offset === 1) {
+                // Sisi Kiri & Kanan
+                xPos = offset === -1 ? "-110%" : "110%";
+                yPos = 40; rotation = offset * 10; scale = 0.85; zIndex = 20; opacity = 0.7;
+              } else if (offset === -2 || offset === 2) {
+                // Sisi Terluar Kiri & Kanan (Menghilang)
+                xPos = offset === -2 ? "-180%" : "180%";
+                yPos = 120; rotation = offset * 18; scale = 0.6; zIndex = 10; opacity = 0; 
+              } else {
+                opacity = 0;
+              }
+
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={false}
+                  animate={{ x: xPos, y: yPos, rotate: rotation, scale: scale, opacity: opacity, zIndex: zIndex }}
+                  transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
+                  // Lebar responsif: 260px di HP, 450px di Laptop
+                  className="absolute bg-white p-3 pb-10 md:pb-12 shadow-2xl rounded-2xl w-[260px] md:w-[450px] border border-slate-100"
+                >
+                  {/* Tinggi foto responsif: 240px di HP, 350px di Laptop */}
+                  <div className="w-full h-[240px] md:h-[350px] bg-slate-100 bg-center bg-cover flex items-center justify-center text-slate-400 font-bold border border-slate-100 rounded-xl overflow-hidden">
+                    {/* FOTO DARI VARIABEL ARRAY */}
+                    {item.img}
+                  </div>
+                  <p className="text-center italic text-sm md:text-lg mt-4 md:mt-6 text-slate-600 font-serif font-medium">
+                    {item.title}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+
+          {/* Tombol Navigasi Kiri Kanan - Posisinya ditarik ke samping */}
+          <button 
+            onClick={prevGallery} 
+            className="absolute left-0 md:left-10 top-1/2 -translate-y-1/2 p-4 md:p-5 rounded-full bg-white text-slate-600 shadow-xl hover:bg-[#0a5c7a] hover:text-white transition-all z-40 border border-slate-100 hover:scale-110"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+          </button>
+          
+          <button 
+            onClick={nextGallery} 
+            className="absolute right-0 md:right-10 top-1/2 -translate-y-1/2 p-4 md:p-5 rounded-full bg-white text-slate-600 shadow-xl hover:bg-[#0a5c7a] hover:text-white transition-all z-40 border border-slate-100 hover:scale-110"
           >
-            Documentation
-          </a>
+            <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+          </button>
         </div>
-      </main>
+      </section>
+
+      {/* 4. TESTIMONIALS SECTION - Split Layout & Scrollable Reviews + WA Grids */}
+      <section id="ulasan" className="py-24 px-6 md:px-16 max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20">
+        
+        {/* Kiri: Teks Judul (Tetap di Samping) */}
+        <motion.div className="lg:w-1/3 relative shrink-0" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+          <div className="sticky top-32">
+            <div className="absolute w-32 h-32 bg-[#e2edf2] rounded-full blur-3xl -left-10 -top-10 -z-10"></div>
+            <h2 className="text-5xl md:text-6xl font-light text-slate-800 leading-tight mb-6">
+              Dipercaya oleh <br />
+              <span className="font-bold text-slate-900">Masyarakat</span> <br />
+              Palembang.
+            </h2>
+            <p className="text-slate-500">Bukti nyata dari dedikasi kami memberikan layanan kunci terbaik siang dan malam.</p>
+            
+            <div className="flex gap-4 mt-8">
+              <button onClick={() => scrollReviews('left')} className="p-3 rounded-full border border-slate-200 bg-white hover:bg-[#0a5c7a] hover:text-white transition-colors shadow-sm text-slate-600">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button onClick={() => scrollReviews('right')} className="p-3 rounded-full border border-slate-200 bg-white hover:bg-[#0a5c7a] hover:text-white transition-colors shadow-sm text-slate-600">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Kanan: Content Review */}
+        <div className="lg:w-2/3 w-full flex flex-col gap-10">
+          
+          {/* Scrollable Text Reviews - Kotak Diperkecil agar Teks Turun */}
+          <div 
+            ref={reviewsRef}
+            className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory hide-scrollbar items-stretch"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {/* Card 1 */}
+            <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between">
+              <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
+                "Kunci Eman tidak sekadar menduplikat; pelayanan panggilan 24 jamnya sangat membantu. Kerjaannya diam, cepat, dan tingkat presisinya luar biasa."
+              </p>
+              <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full shrink-0"></div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Warga Bukit Kecil</h4>
+                  <p className="text-[10px] text-slate-400 mt-1">Review Langsung</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between">
+              <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
+                "Pengerjaan chip immobilizer mobil saya beres tanpa harus repot bawa ke dealer resmi. Harga bersahabat hasil maksimal!"
+              </p>
+              <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-100 to-green-200 rounded-full shrink-0"></div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Klien Home Servis</h4>
+                  <p className="text-[10px] text-slate-400 mt-1">Review WhatsApp</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="w-[280px] md:w-[320px] snap-start bg-white p-6 md:p-8 border border-slate-200 rounded-2xl shadow-lg shrink-0 flex flex-col justify-between">
+              <p className="text-slate-600 font-light leading-relaxed mb-8 italic">
+                "Malam-malam kunci motor patah di dalam, untung Kunci Eman fast respon datang ke lokasi. Pengerjaan sangat rapi."
+              </p>
+              <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full shrink-0"></div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-tight">Mahasiswa UIN</h4>
+                  <p className="text-[10px] text-slate-400 mt-1">Panggilan Malam</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Frame Kotak untuk Screenshot Review WA - Dibungkus agar lebih rapi di laptop */}
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mt-2">
+            <h4 className="text-sm font-semibold text-slate-600 mb-5 border-b border-slate-200 pb-3 flex items-center justify-between">
+              <span>Galeri Bukti Percakapan Pelanggan</span>
+              <span className="text-[10px] bg-white px-2 py-1 rounded text-slate-400 border border-slate-200 hidden sm:block">Gambar Ilustrasi WA</span>
+            </h4>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((item) => (
+                <div key={item} className="aspect-[9/16] bg-white rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center relative group cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1">
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/5 group-hover:opacity-0 transition-opacity"></div>
+                  <span className="text-xs text-slate-300 font-medium">SS WA {item}</span>
+                  {/* <img src={`ss-wa-${item}.jpg`} className="w-full h-full object-cover" /> */}
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 5. CONTACT SECTION - Penambahan Frame Peta Google Maps */}
+      <section id="kontak" className="py-24 px-6 md:px-16 max-w-screen-2xl mx-auto border-t border-slate-100 bg-slate-50 rounded-t-[3rem] mt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+            <h2 className="text-4xl md:text-5xl font-light text-slate-800 tracking-tight mb-4">
+              Hubungi <span className="font-semibold text-[#0a5c7a]">Kunci Eman</span>.
+            </h2>
+            <p className="text-slate-500 text-sm font-light leading-relaxed mb-10">
+              Entah itu masalah terkunci tengah malam atau kebutuhan pembaruan keamanan strategis, kami siap mengembalikan akses Anda dengan cepat.
+            </p>
+
+            <div className="space-y-8 bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="flex gap-4 items-center">
+                <div className="bg-[#e2edf2] p-4 rounded-xl text-[#0a5c7a]">
+                  <Phone className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">CALL CENTER / WA 24 JAM</h4>
+                  <p className="text-xl text-slate-800 font-bold">0897-8744-356</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4 items-center">
+                <div className="bg-[#e2edf2] p-4 rounded-xl text-[#0a5c7a]">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">LOKASI TOKO</h4>
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                    Jln Radial Samping Spbu Lama Radial<br/>
+                    24 Ilir, Kec. Bukit Kecil - Palembang
+                  </p>
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-semibold mt-1 inline-block">Buka: Jam 9 - 17 WIB</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Frame Peta Servis (Google Maps Iframe Placeholder) */}
+            <div className="mt-8 rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-[250px] w-full bg-slate-200 relative group">
+              {/* Anda bisa mengganti URL src di bawah ini dengan Embed Link Google Maps asli milik Kunci Eman */}
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127504.42335198089!2d104.65997235!3d-2.9554378999999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e3b75e8fc27a3e3%3A0x3039d80b220d0c0!2sPalembang%2C%20Palembang%20City%2C%20South%20Sumatra!5e0!3m2!1sen!2sid!4v1712130000000!5m2!1sen!2sid" 
+                width="100%" 
+                height="100%" 
+                style={{border:0}} 
+                allowFullScreen={true} 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 z-10"
+              ></iframe>
+            </div>
+          </motion.div>
+
+          <motion.div className="bg-white p-10 rounded-3xl border border-slate-100 shadow-xl" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+            <h3 className="text-2xl font-semibold mb-8 text-slate-800">Formulir Panggilan Cepat</h3>
+            <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">NAMA LENGKAP</label>
+                <input type="text" placeholder="Contoh: Budi Santoso" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all" />
+              </div>
+              
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">PILIH LAYANAN</label>
+                <select className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all cursor-pointer">
+                  <option>Home Servis (Panggilan Darurat)</option>
+                  <option>Duplikat Kunci Motor/Mobil</option>
+                  <option>Servis Kunci Brankas / Pintu</option>
+                  <option>Pembuatan Chip Immobilizer</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">ALAMAT / DETAIL MASALAH</label>
+                <textarea rows={4} placeholder="Jelaskan detail kunci yang rusak dan alamat Anda..." className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all resize-none"></textarea>
+              </div>
+
+              <a 
+                href="https://wa.me/628978744356"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white py-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors mt-8 shadow-lg shadow-green-200"
+              >
+                Kirim via WhatsApp <ArrowRight className="w-4 h-4" />
+              </a>
+            </form>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="py-8 px-6 md:px-16 border-t border-slate-200 bg-white flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="text-left">
+          <h4 className="text-sm font-bold text-[#0a5c7a] mb-1">KUNCI EMAN</h4>
+          <p className="text-[10px] text-slate-400 font-medium">Spesialis Duplikat & Servis Kunci Presisi Palembang.</p>
+        </div>
+        
+        <p className="text-[10px] text-slate-400 font-medium">©{new Date().getFullYear()} Kunci Eman. Didesain secara eksklusif.</p>
+      </footer>
     </div>
   );
 }
