@@ -742,7 +742,7 @@ export default function Home() {
             <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-5">WAKTU OPERASIONAL</h4>
             <div className="flex flex-col gap-4 text-sm text-slate-600 font-light">
               <div>
-                <p className="font-semibold text-slate-800">Toko Fisik / Bengkel</p>
+                <p className="font-semibold text-slate-800">Toko Fisik</p>
                 <p>Setiap Hari: 09:00 - 17:00 WIB</p>
               </div>
               <div>
