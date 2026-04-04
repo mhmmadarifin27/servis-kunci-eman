@@ -155,7 +155,7 @@ export default function Home() {
           <a href="#kontak" className="hover:text-[#0a5c7a] transition-colors">Kontak</a>
         </div>
         <a href="https://wa.me/628978744356" target="_blank" rel="noreferrer" className="bg-[#0a5c7a] text-white px-6 py-2.5 rounded text-sm font-semibold hover:bg-[#07465e] transition-colors shadow-lg">
-          Panggilan 24 Jam
+          Hubungi Kami
         </a>
       </nav>
 
@@ -171,7 +171,7 @@ export default function Home() {
               Mendefinisikan ulang akurasi duplikat kunci. Kami tidak hanya membuka ruang yang terkunci; kami mengembalikan ketenangan Anda.
             </p>
             <div className="flex items-center gap-4">
-              <a href="https://wa.me/628978744356" target="_blank" rel="noreferrer" className="bg-[#0a5c7a] text-white px-8 py-3.5 rounded text-sm font-semibold hover:bg-[#07465e] transition-all shadow-xl shadow-[#0a5c7a]/20">Amankan Aset Saya</a>
+              <a href="https://wa.me/628978744356" target="_blank" rel="noreferrer" className="bg-[#0a5c7a] text-white px-8 py-3.5 rounded text-sm font-semibold hover:bg-[#07465e] transition-all shadow-xl shadow-[#0a5c7a]/20">Hubungi Kami</a>
               <a href="#layanan" className="bg-white text-slate-700 border-2 border-white px-8 py-3.5 rounded text-sm font-semibold shadow-lg">Mulai dari 20k</a>
             </div>
           </motion.div>
