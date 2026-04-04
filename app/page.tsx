@@ -115,7 +115,21 @@ export default function Home() {
 
     return () => clearInterval(reviewInterval);
   }, []);
-  // -----------------------------------------------------------------------------
+
+  // --- STATE UNTUK FORMULIR WA ---
+  const [namaWA, setNamaWA] = useState("");
+  const [layananWA, setLayananWA] = useState("Home Servis (Panggilan Darurat)");
+  const [pesanWA, setPesanWA] = useState("");
+
+  const kirimKeWhatsApp = (e: React.FormEvent) => {
+    e.preventDefault(); // Mencegah halaman reload
+    
+    // Membentuk format pesan tebal dan baris baru (%0A)
+    const teksPesan = `Halo *Kunci Eman*, saya butuh bantuan layanan Anda.%0A%0A*Nama:* ${namaWA}%0A*Jenis Layanan:* ${layananWA}%0A*Alamat / Detail Masalah:* ${pesanWA}%0A%0AMohon segera direspons, terima kasih!`;
+    
+    // Membuka tab baru ke WhatsApp dengan pesan yang sudah terisi otomatis
+    window.open(`https://wa.me/628978744356?text=${teksPesan}`, "_blank");
+  };
 
 
 
@@ -594,13 +608,46 @@ export default function Home() {
                   <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-semibold mt-1 inline-block">Buka: Jam 9 - 17 WIB</span>
                 </div>
               </div>
+
+              {/* Tambahan Sosial Media Instagram (Aman dari error Lucide) */}
+              <div className="flex gap-4 items-center">
+                <div className="bg-[#e2edf2] p-4 rounded-xl text-[#0a5c7a]">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="w-6 h-6"
+                  >
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SOSIAL MEDIA</h4>
+                  <a 
+                    href="https://www.instagram.com/duplikatkunciradial_eman?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-sm text-slate-800 font-medium leading-relaxed hover:text-[#0a5c7a] transition-colors"
+                  >
+                    @duplikatkunciradial_eman
+                  </a>
+                </div>
+              </div>
             </div>
+
+            {/* Anda bisa biarkan frame Peta Google Maps di bawah sini yang sudah ada sebelumnya */}
 
             {/* Frame Peta Servis (Google Maps Iframe Placeholder) */}
             <div className="mt-8 rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-[250px] w-full bg-slate-200 relative group">
               {/* Anda bisa mengganti URL src di bawah ini dengan Embed Link Google Maps asli milik Kunci Eman */}
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127504.42335198089!2d104.65997235!3d-2.9554378999999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e3b75e8fc27a3e3%3A0x3039d80b220d0c0!2sPalembang%2C%20Palembang%20City%2C%20South%20Sumatra!5e0!3m2!1sen!2sid!4v1712130000000!5m2!1sen!2sid" 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.4124721171497!2d104.74718660841361!3d-2.9829229969805966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e3b7597d400f01d%3A0x7d2d3eb7d558a3f7!2sDuplikat%20Kunci%20Radial%20Eman%20PALEMBANG.%20Buka%2024jam(Pelayanan%20Panggilan%20Bukan%20Toko)!5e0!3m2!1sid!2sid!4v1775301004293!5m2!1sid!2sid"
                 width="100%" 
                 height="100%" 
                 style={{border:0}} 
@@ -614,35 +661,53 @@ export default function Home() {
 
           <motion.div className="bg-white p-10 rounded-3xl border border-slate-100 shadow-xl" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
             <h3 className="text-2xl font-semibold mb-8 text-slate-800">Formulir Panggilan Cepat</h3>
-            <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+            
+            {/* Form sekarang menjalankan fungsi kirimKeWhatsApp saat disubmit */}
+            <form className="space-y-8" onSubmit={kirimKeWhatsApp}>
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">NAMA LENGKAP</label>
-                <input type="text" placeholder="Contoh: Budi Santoso" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all" />
+                <input 
+                  type="text" 
+                  required
+                  value={namaWA}
+                  onChange={(e) => setNamaWA(e.target.value)}
+                  placeholder="Contoh: Budi Santoso" 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all" 
+                />
               </div>
               
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">PILIH LAYANAN</label>
-                <select className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all cursor-pointer">
-                  <option>Home Servis (Panggilan Darurat)</option>
-                  <option>Duplikat Kunci Motor/Mobil</option>
-                  <option>Servis Kunci Brankas / Pintu</option>
-                  <option>Pembuatan Chip Immobilizer</option>
+                <select 
+                  value={layananWA}
+                  onChange={(e) => setLayananWA(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all cursor-pointer"
+                >
+                  <option value="Home Servis (Panggilan Darurat)">Home Servis (Panggilan Darurat)</option>
+                  <option value="Duplikat Kunci Motor/Mobil">Duplikat Kunci Motor/Mobil</option>
+                  <option value="Servis Kunci Brankas / Pintu">Servis Kunci Brankas / Pintu</option>
+                  <option value="Pembuatan Chip Immobilizer">Pembuatan Chip Immobilizer</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">ALAMAT / DETAIL MASALAH</label>
-                <textarea rows={4} placeholder="Jelaskan detail kunci yang rusak dan alamat Anda..." className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all resize-none"></textarea>
+                <textarea 
+                  rows={4} 
+                  required
+                  value={pesanWA}
+                  onChange={(e) => setPesanWA(e.target.value)}
+                  placeholder="Jelaskan detail kunci yang rusak dan alamat Anda..." 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-800 focus:outline-none focus:border-[#0a5c7a] focus:ring-1 focus:ring-[#0a5c7a] transition-all resize-none"
+                ></textarea>
               </div>
 
-              <a 
-                href="https://wa.me/628978744356"
-                target="_blank"
-                rel="noreferrer"
+              <button 
+                type="submit"
                 className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white py-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors mt-8 shadow-lg shadow-green-200"
               >
                 Kirim via WhatsApp <ArrowRight className="w-4 h-4" />
-              </a>
+              </button>
             </form>
           </motion.div>
 
@@ -650,13 +715,57 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="py-8 px-6 md:px-16 border-t border-slate-200 bg-white flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="text-left">
-          <h4 className="text-sm font-bold text-[#0a5c7a] mb-1">KUNCI EMAN</h4>
-          <p className="text-[10px] text-slate-400 font-medium">Spesialis Duplikat & Servis Kunci Presisi Palembang.</p>
+      <footer className="bg-white pt-16 pb-8 px-6 md:px-16 border-t border-slate-200 mt-20">
+        <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+          
+          {/* Kolom 1: Brand & Tagline */}
+          <div>
+            <h4 className="text-2xl font-bold text-[#0a5c7a] mb-4 tracking-tight">Kunci Eman.</h4>
+            <p className="text-sm text-slate-500 font-light leading-relaxed max-w-xs">
+              Solusi keamanan terpercaya di Palembang. Menyediakan layanan duplikat, servis brankas, hingga chip immobilizer dengan tingkat presisi buatan pabrik.
+            </p>
+          </div>
+
+          {/* Kolom 2: Navigasi Cepat */}
+          <div>
+            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-5">AKSES CEPAT</h4>
+            <div className="flex flex-col gap-3 text-sm text-slate-600 font-medium">
+              <a href="#layanan" className="hover:text-[#0a5c7a] transition-colors w-fit">Layanan Kami</a>
+              <a href="#galeri" className="hover:text-[#0a5c7a] transition-colors w-fit">Dokumentasi Kerja</a>
+              <a href="#ulasan" className="hover:text-[#0a5c7a] transition-colors w-fit">Ulasan Pelanggan</a>
+              <a href="#kontak" className="hover:text-[#0a5c7a] transition-colors w-fit">Formulir Panggilan</a>
+            </div>
+          </div>
+
+          {/* Kolom 3: Info Operasional */}
+          <div>
+            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-5">WAKTU OPERASIONAL</h4>
+            <div className="flex flex-col gap-4 text-sm text-slate-600 font-light">
+              <div>
+                <p className="font-semibold text-slate-800">Toko Fisik / Bengkel</p>
+                <p>Setiap Hari: 09:00 - 17:00 WIB</p>
+              </div>
+              <div>
+                <p className="font-semibold text-emerald-600 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Home Servis (Darurat)
+                </p>
+                <p>Siaga 24 Jam Non-Stop</p>
+              </div>
+            </div>
+          </div>
+
         </div>
-        
-        <p className="text-[10px] text-slate-400 font-medium">©{new Date().getFullYear()} Kunci Eman. Didesain secara eksklusif.</p>
+
+        {/* Copyright Line */}
+        <div className="max-w-screen-2xl mx-auto border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-[10px] text-slate-400 font-medium tracking-widest uppercase">
+            © {new Date().getFullYear()} KUNCI EMAN. HAK CIPTA DILINDUNGI.
+          </p>
+          <p className="text-[10px] text-slate-400 font-medium tracking-wide">
+            Didesain dan dikembangkan oleh <a href="#" className="text-[#0a5c7a] font-bold hover:underline">A-dev</a>
+          </p>
+        </div>
       </footer>
     </div>
   );
